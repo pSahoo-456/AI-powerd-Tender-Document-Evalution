@@ -1,0 +1,33 @@
+SAMPLE TENDER DOCUMENT
+
+Project Title: Digital Transformation Initiative
+
+1. PROJECT OVERVIEW
+The organization seeks to implement a comprehensive digital transformation initiative to modernize our IT infrastructure and improve operational efficiency.
+
+2. SCOPE OF WORK
+- Develop and deploy a cloud-based enterprise resource planning (ERP) system
+- Implement cybersecurity measures including firewalls, encryption, and access controls
+- Migrate existing data to the new cloud platform
+- Provide staff training on new systems
+- Offer 24/7 technical support for 12 months post-implementation
+
+3. TECHNICAL REQUIREMENTS
+- Minimum 5 years experience in ERP system development
+- Proven expertise in cloud platforms (AWS, Azure, or GCP)
+- ISO 27001 certification for information security
+- Experience with data migration from legacy systems
+- Knowledge of Agile development methodologies
+
+4. BUDGET CONSTRAINTS
+The total budget for this project is $750,000 USD.
+
+5. TIMELINE
+Project completion is required within 18 months from contract signing.
+
+6. EVALUATION CRITERIA
+Proposals will be evaluated based on:
+- Technical approach and methodology (40%)
+- Team qualifications and experience (30%)
+- Cost-effectiveness (20%)
+- Project timeline and milestones (10%)

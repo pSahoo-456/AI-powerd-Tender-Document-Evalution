@@ -1,0 +1,128 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{geometry}
+\usepackage{tabularx}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{multirow}
+\usepackage{graphicx}
+\usepackage{fancyhdr}
+\usepackage{hyperref}
+\usepackage{xcolor}
+\usepackage{caption}
+\usepackage{float}
+\usepackage{pdflscape}
+
+\geometry{margin=1in}
+\setlength{\parindent}{0pt}
+
+% Define colors
+\definecolor{primary}{RGB}{30, 58, 138}
+\definecolor{secondary}{RGB}{79, 70, 229}
+\definecolor{success}{RGB}{16, 185, 129}
+\definecolor{warning}{RGB}{245, 158, 11}
+\definecolor{danger}{RGB}{239, 68, 68}
+
+% Header and footer
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\textbf{\textcolor{primary}{ {{ title }} }}}
+\fancyhead[R]{\thepage}
+\fancyfoot[C]{\textcolor{gray}{AI-Powered Tender Evaluation Report}}
+
+\title{\textbf{\textcolor{primary}{ {{ title }} }}}
+\date{ {{ date }} }
+\author{AI Tender Evaluation System}
+
+\begin{document}
+
+\maketitle
+
+\section*{Executive Summary}
+This report presents the evaluation results of tender proposals against the organization's requirements. The evaluation was performed using AI-powered analysis including semantic similarity matching and LLM-based reasoning.
+
+\section*{Organization Requirements}
+{% for requirement in requirements %}
+\begin{itemize}
+    \item {{ requirement | truncate(200) }}
+\end{itemize}
+{% endfor %}
+
+\section*{Evaluation Results Summary}
+\begin{table}[H]
+\centering
+\begin{tabularx}{\textwidth}{|l|X|l|}
+\hline
+\textbf{Metric} & \textbf{Value} \\
+\hline
+Total Applicants Evaluated & {{ applicants|length }} \\
+Average Compliance Score & {{ "%.1f"|format(applicants|map(attribute="score")|sum / applicants|length if applicants else 0) }} \\
+Top Applicant Score & {{ applicants|map(attribute="score")|max if applicants else 0 }} \\
+\hline
+\end{tabularx}
+\caption{Evaluation Summary}
+\end{table}
+
+\section*{Applicant Comparison Table}
+
+\begin{longtable}{|c|p{3cm}|c|c|p{4cm}|p{3cm}|}
+\hline
+\textbf{Rank} & \textbf{Applicant} & \textbf{Similarity} & \textbf{Compliance} & \textbf{Explanation} & \textbf{Key Strengths} \\
+\hline
+{% for applicant in applicants %}
+{{ applicant.rank }} & {{ applicant.name }} & {{ "%.3f"|format(applicant.similarity_score) }} & {{ applicant.score }} & {{ applicant.explanation | truncate(100) }} & {{ applicant.strengths | truncate(80) }} \\
+\hline
+{% endfor %}
+\end{longtable}
+
+\section*{Detailed Applicant Analysis}
+
+{% for applicant in applicants %}
+\subsection*{Rank {{ applicant.rank }}: {{ applicant.name }} (Score: {{ applicant.score }})}
+
+\begin{table}[H]
+\centering
+\begin{tabularx}{\textwidth}{|l|X|}
+\hline
+\textbf{Metric} & \textbf{Value} \\
+\hline
+Compliance Score & {{ applicant.score }}/100 \\
+Similarity Score & {{ "%.3f"|format(applicant.similarity_score) }} \\
+\hline
+\end{tabularx}
+\end{table}
+
+\textbf{Explanation:} {{ applicant.explanation }}
+
+\textbf{Strengths:} {{ applicant.strengths }}
+
+\textbf{Areas for Improvement:} {{ applicant.improvements }}
+
+\textbf{Proposal Excerpt:} {{ applicant.content }}
+
+\newpage
+{% endfor %}
+
+\section*{Recommendations}
+
+Based on the evaluation results, the following recommendations are provided:
+
+\begin{enumerate}
+    \item \textbf{Top-Ranked Applicant:} The applicant with the highest compliance score ({{ applicants[0].name if applicants else "N/A" }}) should be considered for further review.
+    \item \textbf{Compliance Threshold:} Only applicants scoring above the minimum threshold should be considered for contract award.
+    \item \textbf{Further Due Diligence:} Conduct additional verification for the top-ranked applicants before final selection.
+\end{enumerate}
+
+\section*{Methodology}
+
+The evaluation process followed these steps:
+
+\begin{enumerate}
+    \item \textbf{Document Processing:} Text extraction from PDF documents using OCR when necessary.
+    \item \textbf{Embedding Generation:} Creation of vector representations using nomic-embed-text model.
+    \item \textbf{Similarity Search:} Semantic matching between requirements and proposals.
+    \item \textbf{Rule-Based Filtering:} Application of budget, timeline, and certification constraints.
+    \item \textbf{LLM Evaluation:} Detailed scoring and analysis using llama3.1 model.
+\end{enumerate}
+
+\end{document}

@@ -1,0 +1,35 @@
+# Core dependencies
+langchain==0.3.0
+langchain-community==0.3.0
+langchain-core==0.3.0
+
+# PDF processing
+pymupdf==1.23.21
+pdfplumber==0.10.4
+
+# OCR
+pytesseract==0.3.10
+Pillow==10.0.1
+
+# Vector database
+faiss-cpu==1.7.4
+chromadb==0.4.22
+
+# Ollama integration
+ollama==0.1.7
+
+# Template and report generation
+jinja2==3.1.2
+latex==0.7.0
+
+# Web interface
+streamlit==1.28.0
+
+# Utilities
+python-dotenv==1.0.0
+pydantic>=2.7.4,<3.0.0
+numpy==1.24.3
+pandas==2.1.1
+
+# Testing
+pytest==7.4.2
