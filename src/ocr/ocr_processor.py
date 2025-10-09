@@ -44,6 +44,13 @@ class OCRProcessor:
             # Extract text from each image
             extracted_text = ""
             for i, image in enumerate(images):
+                # Preprocess image for better OCR results
+                # Convert to grayscale
+                image = image.convert('L')
+                
+                # Apply threshold to get image with only black and white
+                # image = image.point(lambda x: 0 if x < 128 else 255, '1')
+                
                 text = pytesseract.image_to_string(image, lang=self.language)
                 extracted_text += f"\n--- Page {i+1} ---\n{text}\n"
             

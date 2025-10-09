@@ -5,6 +5,8 @@ Similarity search functionality for document comparison
 from typing import List, Dict, Any, Tuple
 from langchain_core.documents import Document
 from src.vector_db.vector_store import VectorStoreManager
+import numpy as np
+from sklearn.metrics.pairwise import cosine_similarity
 
 
 class SimilaritySearcher:
@@ -40,15 +42,76 @@ class SimilaritySearcher:
         # Perform similarity search
         # Note: The FAISS/Chroma implementation should return documents with similarity scores
         # For now, we'll simulate this by calculating our own scores
-        similar_docs = self.vector_store.similarity_search(combined_query, k=top_k)
+        try:
+            similar_docs = self.vector_store.similarity_search(combined_query, k=top_k * 2)  # Get more results to filter
+        except Exception as e:
+            # If similarity search fails, fall back to ranking all applicants
+            print(f"Similarity search failed, falling back to ranking: {e}")
+            return self.rank_applicants(requirements, applicants[:top_k])
         
-        # Calculate similarity scores for each document
+        # Filter out organization documents - only keep applicant documents
+        applicant_sources = {applicant.metadata.get('source') for applicant in applicants if applicant.metadata and applicant.metadata.get('source')}
+        filtered_docs = [doc for doc in similar_docs if doc.metadata and doc.metadata.get('source') in applicant_sources]
+        
+        # If no filtered docs, use all applicants as fallback
+        if not filtered_docs:
+            print("No filtered docs found, using all applicants")
+            filtered_docs = applicants[:top_k]
+        
+        # Limit to top_k results
+        filtered_docs = filtered_docs[:top_k]
+        
+        # Calculate similarity scores for each document using cosine similarity
         results = []
-        for doc in similar_docs:
-            # In a real implementation with FAISS/Chroma, scores would be available
-            # For now, we'll use a placeholder score or extract from metadata if available
-            score = getattr(doc, 'similarity_score', self._calculate_similarity(combined_query, doc.page_content))
-            results.append((doc, score))
+        for doc in filtered_docs:
+            # Extract embeddings from metadata
+            req_embedding = self._get_document_embedding(requirements[0])  # Use first requirement as reference
+            applicant_embedding = self._get_document_embedding(doc)
+            
+            if req_embedding is not None and applicant_embedding is not None:
+                # Calculate cosine similarity
+                score = cosine_similarity([req_embedding], [applicant_embedding])[0][0]
+            else:
+                # Fallback to text-based similarity
+                score = self._calculate_similarity(combined_query, doc.page_content)
+            
+            # Add similarity score to document metadata
+            doc_with_score = Document(
+                page_content=doc.page_content,
+                metadata=doc.metadata.copy() if doc.metadata else {}
+            )
+            doc_with_score.metadata['similarity_score'] = float(score)
+            
+            results.append((doc_with_score, score))
+        
+        # If we don't have enough results, add remaining applicants with low scores
+        if len(results) < top_k:
+            existing_sources = {doc.metadata.get('source') for doc, _ in results if doc.metadata and doc.metadata.get('source')}
+            remaining_applicants = [applicant for applicant in applicants 
+                                  if applicant.metadata and applicant.metadata.get('source') not in existing_sources]
+            
+            for applicant in remaining_applicants[:top_k - len(results)]:
+                # Calculate similarity score
+                req_embedding = self._get_document_embedding(requirements[0])
+                applicant_embedding = self._get_document_embedding(applicant)
+                
+                if req_embedding is not None and applicant_embedding is not None:
+                    score = cosine_similarity([req_embedding], [applicant_embedding])[0][0]
+                else:
+                    score = self._calculate_similarity(combined_query, applicant.page_content)
+                
+                # Add similarity score to document metadata
+                applicant_with_score = Document(
+                    page_content=applicant.page_content,
+                    metadata=applicant.metadata.copy() if applicant.metadata else {}
+                )
+                applicant_with_score.metadata['similarity_score'] = float(score)
+                
+                results.append((applicant_with_score, score))
+        
+        # Sort by similarity score (descending) and limit to top_k
+        results.sort(key=lambda x: x[1], reverse=True)
+        results = results[:top_k]
         
         return results
     
@@ -64,9 +127,6 @@ class SimilaritySearcher:
         Returns:
             List of tuples (applicant_document, similarity_score) sorted by score
         """
-        # This is a simplified implementation
-        # In a real system, you might want to use more sophisticated ranking algorithms
-        
         # For each applicant, calculate similarity to requirements
         ranked_applicants = []
         
@@ -74,17 +134,48 @@ class SimilaritySearcher:
         requirement_texts = [req.page_content for req in requirements]
         combined_query = " ".join(requirement_texts)
         
+        # Get requirement embedding for comparison
+        req_embedding = self._get_document_embedding(requirements[0]) if requirements else None
+        
         # Search for each applicant document
         for applicant in applicants:
-            # In a real implementation, we would calculate actual similarity scores
-            # For now, we'll use a placeholder approach
-            score = self._calculate_similarity(combined_query, applicant.page_content)
-            ranked_applicants.append((applicant, score))
+            # Extract applicant embedding
+            applicant_embedding = self._get_document_embedding(applicant)
+            
+            if req_embedding is not None and applicant_embedding is not None:
+                # Calculate cosine similarity using embeddings
+                score = cosine_similarity([req_embedding], [applicant_embedding])[0][0]
+            else:
+                # Fallback to text-based similarity
+                score = self._calculate_similarity(combined_query, applicant.page_content)
+            
+            # Add similarity score to document metadata
+            applicant_with_score = Document(
+                page_content=applicant.page_content,
+                metadata=applicant.metadata.copy() if applicant.metadata else {}
+            )
+            applicant_with_score.metadata['similarity_score'] = float(score)
+            
+            ranked_applicants.append((applicant_with_score, score))
         
         # Sort by similarity score (descending)
         ranked_applicants.sort(key=lambda x: x[1], reverse=True)
         
         return ranked_applicants
+    
+    def _get_document_embedding(self, document: Document) -> List[float]:
+        """
+        Extract embedding from document metadata
+        
+        Args:
+            document: Document object
+            
+        Returns:
+            Embedding vector or None if not found
+        """
+        if hasattr(document, 'metadata') and document.metadata:
+            return document.metadata.get('embedding')
+        return None
     
     def _calculate_similarity(self, text1: str, text2: str) -> float:
         """

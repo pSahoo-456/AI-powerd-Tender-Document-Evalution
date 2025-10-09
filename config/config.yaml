@@ -31,6 +31,7 @@ processing:
 # Evaluation settings
 evaluation:
   max_applicants: 10
+  min_score_threshold: 70
   scoring_weights:
     technical_compliance: 0.4
     budget_compliance: 0.3

@@ -1,158 +1,252 @@
-# AI-Powered Tender Evaluation System
+# 📄 AI-Powered Tender Proposal Evaluation System
 
-This system automates the evaluation of tender documents against applicants' proposals using AI technologies.
+<p align="center">
+  <img src="https://img.shields.io/badge/Python-3.8%2B-blue" alt="Python Version">
+  <img src="https://img.shields.io/badge/License-MIT-green" alt="License">
+  <img src="https://img.shields.io/badge/Platform-Windows%20%7C%20Linux%20%7C%20MacOS-lightgrey" alt="Platform">
+</p>
 
-## Features
-- Parse organization tender documents to extract requirements
-- Process applicants' PDF documents (OCR for scanned docs)
-- Generate embeddings using Ollama
-- Perform semantic similarity search
-- Apply rule-based filters
-- Evaluate top candidates with LLM
-- Generate professional PDF reports
+<p align="center">
+  <strong>An intelligent system for automated evaluation of tender proposals using AI and semantic analysis</strong>
+</p>
 
-## Tech Stack
-- LangChain for pipeline orchestration
-- Tesseract OCR for text extraction
-- Ollama for embeddings and LLM reasoning
-- FAISS/Chroma as vector database
-- Jinja2 + LaTeX for report generation
-- Streamlit for UI
+## 🌟 Overview
 
-## Project Structure
+The **Tender Proposal Evaluation System** is an advanced AI-powered solution designed to streamline the tender evaluation process. By leveraging natural language processing, semantic similarity matching, and large language models, this system provides objective, consistent, and comprehensive evaluation of tender proposals against organizational requirements.
+
+### 🔍 Key Benefits
+
+- **⏱️ Time Savings**: Automate hours of manual document review
+- **🎯 Objective Scoring**: Eliminate human bias with AI-driven analysis
+- **📊 Detailed Insights**: Get comprehensive evaluation reports with actionable insights
+- **🖥️ User-Friendly**: Intuitive web interface for easy operation
+- **📄 Professional Reports**: Generate polished PDF reports automatically
+
+## 🚀 Features
+
+| Feature | Description |
+|---------|-------------|
+| **📄 Document Processing** | Extracts text from PDF documents using pdfplumber with OCR fallback |
+| **🧠 Semantic Analysis** | Converts documents to embeddings using Ollama nomic-embed-text model |
+| **🔍 Similarity Matching** | Finds semantic similarity between requirements and proposals using cosine similarity |
+| **🤖 LLM Evaluation** | Provides detailed scoring and analysis using Ollama llama3.1 model |
+| **📑 Professional Reporting** | Generates structured LaTeX reports compiled to PDF |
+| **🌐 Web Interface** | User-friendly Streamlit interface for easy interaction |
+
+## 🏗️ System Architecture
+
+```mermaid
+graph TD
+    A[Document Ingestion] --> B[Embedding Generation]
+    B --> C[Similarity Matching]
+    C --> D[Rule-Based Filtering]
+    D --> E[LLM Reasoning]
+    E --> F[Report Generation]
+    
+    subgraph "Core Modules"
+        A
+        B
+        C
+        D
+        E
+        F
+    end
+    
+    G[Web Interface] --> E
+    G --> F
+    H[CLI Interface] --> E
+    H --> F
 ```
-tender-evaluation-system/
-├── config/
-│   ├── config.yaml
-│   └── tender_rules.yaml
-├── data/
-│   ├── org_documents/
-│   └── applicant_documents/
-├── src/
-│   ├── ingestion/
-│   ├── ocr/
-│   ├── parsing/
-│   ├── embeddings/
-│   ├── vector_db/
-│   ├── search/
-│   ├── filtering/
-│   ├── evaluation/
-│   ├── reporting/
-│   ├── interfaces/
-│   └── utils/
-├── templates/
-├── tests/
-├── requirements.txt
-├── main.py
-└── README.md
+
+*Note: A visual diagram of the system architecture can be found in the docs/images/ folder.*
+
+## 📋 Prerequisites
+
+- **Python 3.8 or higher**
+- **Ollama** (for embeddings and LLM evaluation)
+- **LaTeX distribution** (MiKTeX for Windows, TeX Live for Linux/Mac) for PDF generation
+- **Tesseract OCR** *(optional)* for scanned PDFs
+
+## 🛠️ Installation
+
+### 1. Clone the Repository
+
+```bash
+git clone <repository-url>
+cd tender-proposal-evaluation-system
 ```
 
-## Installation
+### 2. Install Dependencies
 
-1. Install the required dependencies:
 ```bash
 pip install -r requirements.txt
 ```
 
-2. Install Ollama from https://ollama.ai and pull the required models:
+### 3. Install Ollama
+
+Download and install Ollama from [https://ollama.com/](https://ollama.com/)
+
+### 4. Pull Required Models
+
 ```bash
 ollama pull nomic-embed-text
 ollama pull llama3.1
 ```
 
-3. Install Tesseract OCR:
-   - Windows: Download from https://github.com/UB-Mannheim/tesseract/wiki
-   - macOS: `brew install tesseract`
-   - Linux: `sudo apt-get install tesseract-ocr`
+### 5. Install LaTeX Distribution
 
-4. Install LaTeX distribution for report generation:
-   - Windows: Install MiKTeX or TeX Live
-   - macOS: Install MacTeX
-   - Linux: `sudo apt-get install texlive-full`
+Choose your platform:
 
-## Usage
+<details>
+<summary>Windows</summary>
 
-### CLI Interface
+Install MiKTeX from [https://miktex.org/](https://miktex.org/)
+</details>
+
+<details>
+<summary>Linux</summary>
+
+```bash
+sudo apt-get install texlive-full
+```
+</details>
+
+<details>
+<summary>MacOS</summary>
+
+Install MacTeX from [https://www.tug.org/mactex/](https://www.tug.org/mactex/)
+</details>
+
+## ▶️ Usage
+
+### Web Interface (Recommended) 🔥
+
+Run the professional Streamlit interface:
+
+```bash
+streamlit run src/interfaces/professional_streamlit_app.py
+```
+
+Or use the provided launcher script:
+
+```bash
+python run_app.py
+```
+
+The web interface will be available at `http://localhost:8504` (or another port if 8504 is occupied).
+
+### Command Line Interface
+
+Run the system in CLI mode:
+
 ```bash
 python main.py --mode cli
 ```
 
-### Professional Web Interface (Streamlit)
-```bash
-python main.py --mode web
+## ⚙️ Configuration
+
+The system can be configured through `config/config.yaml`:
+
+- **Ollama Settings**: Configure base URL and model names
+- **Evaluation Settings**: Set maximum applicants and scoring thresholds
+- **OCR Settings**: Enable/disable OCR and set language
+- **Processing Settings**: Adjust chunk sizes and similarity search parameters
+
+### Evaluation Settings in Web Interface
+
+| Setting | Description | Range |
+|---------|-------------|-------|
+| **Maximum Proposals** | Set the maximum number of proposals to process | 1-50 |
+| **Minimum Score Threshold** | Minimum compliance score for inclusion | 0-100 |
+| **Ollama Settings** | Configure base URL and model names | - |
+| **OCR Settings** | Enable/disable OCR processing | - |
+
+## 📊 Report Generation
+
+The system generates professional PDF reports with:
+
+1. **Executive Summary** - Overview of the evaluation
+2. **Requirements Analysis** - Organization requirements breakdown
+3. **Comparison Tables** - Technical and financial match analysis
+4. **Individual Evaluations** - Detailed scores and recommendations
+5. **Methodology Documentation** - Process explanation
+
+Reports are generated as LaTeX files and automatically compiled to PDF if a LaTeX distribution is available. If LaTeX is not available, the system will provide the LaTeX source file which can be compiled manually.
+
+##  troubleshoot Troubleshooting
+
+### Ollama Connection Issues
+
+If you encounter connection issues with Ollama:
+1. Ensure Ollama is running: `ollama serve`
+2. Check that the base URL in config.yaml matches your Ollama installation
+3. Verify that the required models are pulled: `ollama list`
+
+### PDF Generation Issues
+
+If PDF reports are not generated:
+1. Ensure a LaTeX distribution is installed
+2. Verify that `pdflatex` is in your system PATH
+3. Check the terminal output for LaTeX compilation errors
+
+### OCR Processing
+
+For better OCR results:
+1. Install Tesseract OCR
+2. Ensure the `pytesseract` package is installed
+3. Set the correct Tesseract executable path in the system PATH
+
+## 📁 Project Structure
+
+```
+tender-proposal-evaluation-system/
+├── config/
+│   └── config.yaml              # System configuration
+├── data/
+│   ├── org_documents/           # Organization requirement documents
+│   ├── applicant_documents/     # Applicant proposal documents
+│   ├── reports/                 # Generated reports
+│   └── vectorstore/             # Vector database storage
+├── src/
+│   ├── embeddings/              # Embedding generation module
+│   ├── evaluation/              # LLM evaluation module
+│   ├── filtering/               # Rule-based filtering module
+│   ├── ingestion/               # Document ingestion module
+│   ├── interfaces/              # User interfaces (CLI and web)
+│   ├── ocr/                     # OCR processing module
+│   ├── parsing/                 # Text processing module
+│   ├── reporting/               # Report generation module
+│   ├── search/                  # Similarity search module
+│   ├── utils/                   # Utility functions
+│   └── vector_db/               # Vector database management
+├── templates/
+│   └── report_template.tex      # LaTeX report template
+├── main.py                      # Main entry point
+├── run_app.py                   # Streamlit app launcher
+├── requirements.txt             # Python dependencies
+└── README.md                   # This file
 ```
 
-### Demo Interface (Streamlit)
-```bash
-python main.py --mode demo
-```
+## 🤝 Contributing
 
-### Adding Documents
-1. Place organization tender documents in `data/org_documents/`
-2. Place applicant proposals in `data/applicant_documents/`
-3. Supported formats: PDF, TXT
+Contributions are welcome! Here's how you can contribute:
 
-## Configuration
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
 
-The system can be configured using `config/config.yaml`:
-- Ollama settings (model names, base URL)
-- Vector database settings (FAISS or Chroma)
-- Processing parameters (chunk size, overlap)
-- Evaluation settings (top K results, scoring weights)
+## 📄 License
 
-Tender rules are configured in `config/tender_rules.yaml`:
-- Budget constraints
-- Timeline requirements
-- Certification requirements
-- Technical requirements
-- Scoring weights
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## System Workflow
+## 📧 Contact
 
-1. **Document Ingestion**: Load organization and applicant documents
-2. **OCR Processing**: Extract text from scanned PDFs if needed
-3. **Text Parsing**: Chunk documents into manageable pieces
-4. **Embedding Generation**: Create vector representations using Ollama
-5. **Vector Storage**: Store embeddings in FAISS or Chroma database
-6. **Similarity Search**: Find semantically similar applicant documents
-7. **Rule Filtering**: Apply budget, timeline, and certification filters
-8. **LLM Evaluation**: Use LLM to score and analyze top candidates
-9. **Report Generation**: Create professional PDF reports with results
+For questions, issues, or feedback, please open an issue on this repository.
 
-## Professional Web Interface Features
+---
 
-The professional Streamlit interface provides:
-
-- **Modern UI**: Clean, professional design with intuitive navigation
-- **Tabbed Workflow**: Organized 5-step process for document evaluation
-- **Document Upload**: Separate sections for organization requirements and applicant proposals
-- **AI Processing**: Real-time status updates during document processing
-- **Interactive Results**: Sortable tables with detailed applicant analysis
-- **PDF Reports**: Professional LaTeX-generated reports with comparison tables
-- **Progress Indicators**: Visual feedback throughout the evaluation process
-
-## Testing the System
-
-### Running Component Tests
-```bash
-python -m pytest tests/ -v
-```
-
-### Running Demonstration
-```bash
-python demonstration.py
-```
-
-### Running Professional Web Interface
-```bash
-streamlit run main.py -- --mode web
-```
-
-### Running Demo Interface
-```bash
-streamlit run main.py -- --mode demo
-```
-
-## License
-
-This project is licensed under the MIT License.
+<p align="center">
+  Made with ❤️ by Prakash 
+</p>

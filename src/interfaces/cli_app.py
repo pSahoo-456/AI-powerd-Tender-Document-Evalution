@@ -47,8 +47,9 @@ def run_cli_app(config_path: str = "./config/config.yaml"):
     
     # Initialize components
     print("Initializing system components...")
-    doc_loader = DocumentLoader()
-    ocr_processor = OCRProcessor(config.get('ocr', {}))
+    ocr_config = config.get('ocr', {})
+    doc_loader = DocumentLoader(ocr_config)
+    ocr_processor = OCRProcessor(ocr_config)
     text_processor = TextProcessor(config.get('processing', {}))
     embedding_generator = EmbeddingGenerator(config.get('ollama', {}))
     vector_store_manager = VectorStoreManager(config.get('vector_db', {}))

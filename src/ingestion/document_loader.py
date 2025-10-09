@@ -3,19 +3,22 @@ Document loader for the tender evaluation system
 """
 
 import os
+import pdfplumber
+import io
 from pathlib import Path
 from typing import List, Dict, Any
-from langchain_community.document_loaders import PyMuPDFLoader, TextLoader
 from langchain_core.documents import Document
 
 from src.utils.file_utils import get_files_in_directory, get_file_extension
+from src.ocr.ocr_processor import OCRProcessor
 
 
 class DocumentLoader:
     """Load documents from various sources"""
     
-    def __init__(self):
+    def __init__(self, ocr_config: Dict[str, Any] = None):
         self.supported_formats = {'.pdf', '.txt'}
+        self.ocr_processor = OCRProcessor(ocr_config or {})
     
     def load_documents(self, directory_path: str) -> List[Document]:
         """
@@ -62,7 +65,7 @@ class DocumentLoader:
     
     def _load_pdf_document(self, file_path: str) -> List[Document]:
         """
-        Load a PDF document
+        Load a PDF document using pdfplumber with OCR fallback
         
         Args:
             file_path: Path to the PDF file
@@ -70,8 +73,30 @@ class DocumentLoader:
         Returns:
             List of Document objects
         """
-        loader = PyMuPDFLoader(file_path)
-        return loader.load()
+        text = ""
+        try:
+            # Try to extract text using pdfplumber
+            with pdfplumber.open(file_path) as pdf:
+                for page in pdf.pages:
+                    page_text = page.extract_text()
+                    if page_text:
+                        text += page_text + "\n"
+            
+            # If no text was extracted, fallback to OCR
+            if not text.strip():
+                print(f"No text found in {file_path}, using OCR fallback...")
+                text = self.ocr_processor.process_scanned_pdf(file_path)
+                
+        except Exception as e:
+            # If pdfplumber fails, try OCR as fallback
+            print(f"pdfplumber failed for {file_path}: {e}. Using OCR fallback...")
+            try:
+                text = self.ocr_processor.process_scanned_pdf(file_path)
+            except Exception as ocr_error:
+                raise RuntimeError(f"Failed to extract text from {file_path}: {ocr_error}")
+        
+        # Create document with extracted text
+        return [Document(page_content=text.strip(), metadata={"source": file_path})]
     
     def _load_text_document(self, file_path: str) -> List[Document]:
         """
@@ -83,5 +108,6 @@ class DocumentLoader:
         Returns:
             List of Document objects
         """
-        loader = TextLoader(file_path, encoding='utf-8')
-        return loader.load()
+        with open(file_path, 'r', encoding='utf-8') as f:
+            text = f.read()
+        return [Document(page_content=text, metadata={"source": file_path})]

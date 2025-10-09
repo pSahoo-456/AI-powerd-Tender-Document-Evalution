@@ -8,10 +8,12 @@
 \usepackage{graphicx}
 \usepackage{fancyhdr}
 \usepackage{hyperref}
-\usepackage{xcolor}
+\usepackage[table]{xcolor}  % Changed from just xcolor to xcolor with table option
 \usepackage{caption}
 \usepackage{float}
 \usepackage{pdflscape}
+\usepackage{array}
+\usepackage{lastpage}
 
 \geometry{margin=1in}
 \setlength{\parindent}{0pt}
@@ -22,55 +24,128 @@
 \definecolor{success}{RGB}{16, 185, 129}
 \definecolor{warning}{RGB}{245, 158, 11}
 \definecolor{danger}{RGB}{239, 68, 68}
+\definecolor{lightgray}{RGB}{240, 240, 240}
+\definecolor{headercolor}{RGB}{44, 62, 80}
+
+% Fix headheight warning
+\setlength{\headheight}{15pt}
 
 % Header and footer
 \pagestyle{fancy}
 \fancyhf{}
-\fancyhead[L]{\textbf{\textcolor{primary}{ {{ title }} }}}
-\fancyhead[R]{\thepage}
-\fancyfoot[C]{\textcolor{gray}{AI-Powered Tender Evaluation Report}}
+\fancyhead[L]{\textbf{\textcolor{headercolor}{ {{ title }} }}}
+\fancyhead[R]{\thepage\ of \pageref{LastPage}}
+\fancyfoot[L]{AI-Powered Tender Evaluation System}
+\fancyfoot[R]{Generated on {{ date }}}
+
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0.4pt}
 
 \title{\textbf{\textcolor{primary}{ {{ title }} }}}
-\date{ {{ date }} }
+\date{Generated on {{ date }}}
 \author{AI Tender Evaluation System}
 
 \begin{document}
 
-\maketitle
+\begin{titlepage}
+\centering
+\vspace*{2cm}
+
+{\Huge \textbf{\textcolor{primary}{ {{ title }} }}}\\[1cm]
+
+\vspace{2cm}
+
+{\Large \textbf{AI-Powered Tender Evaluation Report}}\\[0.5cm]
+
+\vspace{2cm}
+
+{\large Generated on {{ date }}}\\[0.5cm]
+
+\vspace{3cm}
+
+\textbf{Confidential}\\
+This document contains confidential information and is intended solely for the use of the organization that requested this evaluation.
+
+\vfill
+
+{\large AI Tender Evaluation System}\\
+\textbf{Automated Document Analysis Platform}
+
+\end{titlepage}
+
+\tableofcontents
+\newpage
 
 \section*{Executive Summary}
 This report presents the evaluation results of tender proposals against the organization's requirements. The evaluation was performed using AI-powered analysis including semantic similarity matching and LLM-based reasoning.
 
 \section*{Organization Requirements}
-{% for requirement in requirements %}
 \begin{itemize}
+{% for requirement in requirements %}
     \item {{ requirement | truncate(200) }}
-\end{itemize}
 {% endfor %}
+\end{itemize}
 
 \section*{Evaluation Results Summary}
 \begin{table}[H]
 \centering
-\begin{tabularx}{\textwidth}{|l|X|l|}
+\begin{tabularx}{\textwidth}{|>{\bfseries}l|X|}
 \hline
-\textbf{Metric} & \textbf{Value} \\
+\rowcolor{lightgray}
+Metric & Value \\
 \hline
-Total Applicants Evaluated & {{ applicants|length }} \\
-Average Compliance Score & {{ "%.1f"|format(applicants|map(attribute="score")|sum / applicants|length if applicants else 0) }} \\
-Top Applicant Score & {{ applicants|map(attribute="score")|max if applicants else 0 }} \\
+Total Applicants Evaluated & {{ summary_stats.total_applicants }} \\
+Average Compliance Score & {{ "%.1f"|format(summary_stats.average_score) }} \\
+Top Applicant Score & {{ "%.1f"|format(summary_stats.highest_score) }} \\
+Lowest Applicant Score & {{ "%.1f"|format(summary_stats.lowest_score) }} \\
 \hline
 \end{tabularx}
 \caption{Evaluation Summary}
 \end{table}
 
-\section*{Applicant Comparison Table}
+{% if applicants %}
+\section*{Detailed Comparison Table}
 
 \begin{longtable}{|c|p{3cm}|c|c|p{4cm}|p{3cm}|}
 \hline
+\rowcolor{lightgray}
 \textbf{Rank} & \textbf{Applicant} & \textbf{Similarity} & \textbf{Compliance} & \textbf{Explanation} & \textbf{Key Strengths} \\
 \hline
+\endfirsthead
+\hline
+\rowcolor{lightgray}
+\textbf{Rank} & \textbf{Applicant} & \textbf{Similarity} & \textbf{Compliance} & \textbf{Explanation} & \textbf{Key Strengths} \\
+\hline
+\endhead
+\hline
+\endfoot
+\hline
+\endlastfoot
 {% for applicant in applicants %}
 {{ applicant.rank }} & {{ applicant.name }} & {{ "%.3f"|format(applicant.similarity_score) }} & {{ applicant.score }} & {{ applicant.explanation | truncate(100) }} & {{ applicant.strengths | truncate(80) }} \\
+\hline
+{% endfor %}
+\end{longtable}
+
+\section*{Technical and Financial Match Analysis}
+
+\begin{longtable}{|c|p{3cm}|c|c|c|c|}
+\hline
+\rowcolor{lightgray}
+\textbf{Rank} & \textbf{Applicant} & \textbf{Technical Match} & \textbf{Financial Match} & \textbf{Timeline Match} & \textbf{Overall Score} \\
+\hline
+\endfirsthead
+\hline
+\rowcolor{lightgray}
+\textbf{Rank} & \textbf{Applicant} & \textbf{Technical Match} & \textbf{Financial Match} & \textbf{Timeline Match} & \textbf{Overall Score} \\
+\hline
+\endhead
+\hline
+\endfoot
+\hline
+\endlastfoot
+{% for entry in comparison_table %}
+{{ entry.rank }} & {{ entry.name }} & {{ entry.technical_match }}\% & {{ entry.financial_match }}\% & {{ entry.timeline_match }}\% & {{ entry.overall_score }} \\
 \hline
 {% endfor %}
 \end{longtable}
@@ -82,9 +157,10 @@ Top Applicant Score & {{ applicants|map(attribute="score")|max if applicants els
 
 \begin{table}[H]
 \centering
-\begin{tabularx}{\textwidth}{|l|X|}
+\begin{tabularx}{\textwidth}{|>{\bfseries}l|X|}
 \hline
-\textbf{Metric} & \textbf{Value} \\
+\rowcolor{lightgray}
+Metric & Value \\
 \hline
 Compliance Score & {{ applicant.score }}/100 \\
 Similarity Score & {{ "%.3f"|format(applicant.similarity_score) }} \\
@@ -112,15 +188,19 @@ Based on the evaluation results, the following recommendations are provided:
     \item \textbf{Compliance Threshold:} Only applicants scoring above the minimum threshold should be considered for contract award.
     \item \textbf{Further Due Diligence:} Conduct additional verification for the top-ranked applicants before final selection.
 \end{enumerate}
+{% else %}
+\section*{No Applicants Evaluated}
+No applicant proposals met the evaluation criteria or were successfully processed.
+{% endif %}
 
 \section*{Methodology}
 
 The evaluation process followed these steps:
 
 \begin{enumerate}
-    \item \textbf{Document Processing:} Text extraction from PDF documents using OCR when necessary.
+    \item \textbf{Document Processing:} Text extraction from PDF documents using pdfplumber with OCR fallback when necessary.
     \item \textbf{Embedding Generation:} Creation of vector representations using nomic-embed-text model.
-    \item \textbf{Similarity Search:} Semantic matching between requirements and proposals.
+    \item \textbf{Similarity Search:} Semantic matching between requirements and proposals using cosine similarity.
     \item \textbf{Rule-Based Filtering:} Application of budget, timeline, and certification constraints.
     \item \textbf{LLM Evaluation:} Detailed scoring and analysis using llama3.1 model.
 \end{enumerate}
