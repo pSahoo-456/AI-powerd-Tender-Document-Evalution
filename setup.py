@@ -28,7 +28,6 @@ setup(
         "langchain-core==0.3.0",
         "pymupdf==1.23.21",
         "pdfplumber==0.10.4",
-        "pytesseract==0.3.10",
         "Pillow==10.0.1",
         "faiss-cpu==1.7.4",
         "chromadb==0.4.22",
@@ -44,6 +43,9 @@ setup(
     extras_require={
         "dev": [
             "pytest==7.4.2",
+        ],
+        "ocr": [
+            "pytesseract==0.3.10",
         ],
     },
     entry_points={

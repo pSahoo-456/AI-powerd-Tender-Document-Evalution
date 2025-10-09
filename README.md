@@ -76,8 +76,14 @@ cd tender-proposal-evaluation-system
 
 ### 2. Install Dependencies
 
+For local development:
 ```bash
 pip install -r requirements.txt
+```
+
+For Streamlit Community Cloud deployment:
+```bash
+pip install -r requirements-streamlit.txt
 ```
 
 ### 3. Install Ollama
@@ -179,6 +185,7 @@ python main.py --mode cli
 - **File Persistence**: Uploaded files are not persisted between sessions
 - **External Services**: Ollama must be accessible from your Streamlit app (consider using a cloud-hosted Ollama service)
 - **LaTeX Compilation**: PDF generation may not work in the cloud environment due to LaTeX dependencies
+- **Dependencies**: Use `requirements-streamlit.txt` for deployment to avoid installation issues
 
 ## ⚙️ Configuration
 
@@ -233,6 +240,14 @@ For better OCR results:
 2. Ensure the `pytesseract` package is installed
 3. Set the correct Tesseract executable path in the system PATH
 
+### Streamlit Deployment Issues
+
+If you encounter dependency installation errors on Streamlit Cloud:
+1. Use `requirements-streamlit.txt` instead of `requirements.txt`
+2. Check that all package versions are compatible with Streamlit Cloud
+3. Remove any unnecessary or problematic dependencies
+4. Consider using more recent versions of packages that are known to work on Streamlit Cloud
+
 ## 📁 Project Structure
 
 ```
@@ -262,7 +277,8 @@ tender-proposal-evaluation-system/
 ├── templates/
 │   └── report_template.tex      # LaTeX report template
 ├── main.py                      # Main entry point
-├── requirements.txt             # Python dependencies
+├── requirements.txt             # Python dependencies for local development
+├── requirements-streamlit.txt   # Python dependencies for Streamlit deployment
 └── README.md                   # This file
 ```
 
