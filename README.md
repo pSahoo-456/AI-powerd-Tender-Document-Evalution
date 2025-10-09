@@ -58,8 +58,6 @@ graph TD
     H --> F
 ```
 
-*Note: A visual diagram of the system architecture can be found in the docs/images/ folder.*
-
 ## 📋 Prerequisites
 
 - **Python 3.8 or higher**
@@ -119,7 +117,7 @@ Install MacTeX from [https://www.tug.org/mactex/](https://www.tug.org/mactex/)
 
 ## ▶️ Usage
 
-### Web Interface (Recommended) 🔥
+### Local Development
 
 Run the professional Streamlit interface:
 
@@ -127,13 +125,7 @@ Run the professional Streamlit interface:
 streamlit run src/interfaces/professional_streamlit_app.py
 ```
 
-Or use the provided launcher script:
-
-```bash
-python run_app.py
-```
-
-The web interface will be available at `http://localhost:8504` (or another port if 8504 is occupied).
+The web interface will be available at `http://localhost:8501` (or another port if 8501 is occupied).
 
 ### Command Line Interface
 
@@ -142,6 +134,51 @@ Run the system in CLI mode:
 ```bash
 python main.py --mode cli
 ```
+
+## ☁️ Deployment to Streamlit Community Cloud
+
+### Prerequisites for Deployment
+
+1. A [GitHub](https://github.com/) account
+2. A [Streamlit Community Cloud](https://streamlit.io/cloud) account
+3. This repository pushed to GitHub
+
+### Deployment Steps
+
+1. **Push your code to GitHub**:
+   ```bash
+   git add .
+   git commit -m "Prepare for Streamlit deployment"
+   git push origin main
+   ```
+
+2. **Connect to Streamlit Community Cloud**:
+   - Go to [https://share.streamlit.io/](https://share.streamlit.io/)
+   - Sign in with your GitHub account
+   - Click "New app"
+   - Select your repository
+   - Set the main file path to: `src/interfaces/professional_streamlit_app.py`
+   - Click "Deploy!"
+
+3. **Configure Secrets** (if needed):
+   - In the Streamlit app dashboard, go to "Settings" → "Secrets"
+   - Add any required environment variables:
+   ```toml
+   [ollama]
+   base_url = "your-ollama-url"
+   
+   [paths]
+   org_documents = "./data/org_documents"
+   applicant_documents = "./data/applicant_documents"
+   output_reports = "./data/reports"
+   ```
+
+### Deployment Considerations
+
+- **Resource Limits**: Streamlit Community Cloud has limits on memory and execution time
+- **File Persistence**: Uploaded files are not persisted between sessions
+- **External Services**: Ollama must be accessible from your Streamlit app (consider using a cloud-hosted Ollama service)
+- **LaTeX Compilation**: PDF generation may not work in the cloud environment due to LaTeX dependencies
 
 ## ⚙️ Configuration
 
@@ -200,6 +237,9 @@ For better OCR results:
 
 ```
 tender-proposal-evaluation-system/
+├── .streamlit/
+│   ├── config.toml              # Streamlit configuration
+│   └── secrets.toml             # Streamlit secrets
 ├── config/
 │   └── config.yaml              # System configuration
 ├── data/
@@ -222,7 +262,6 @@ tender-proposal-evaluation-system/
 ├── templates/
 │   └── report_template.tex      # LaTeX report template
 ├── main.py                      # Main entry point
-├── run_app.py                   # Streamlit app launcher
 ├── requirements.txt             # Python dependencies
 └── README.md                   # This file
 ```
@@ -248,5 +287,5 @@ For questions, issues, or feedback, please open an issue on this repository.
 ---
 
 <p align="center">
-  Made with ❤️ by Prakash 
+  Made with ❤️ by AI Developers
 </p>

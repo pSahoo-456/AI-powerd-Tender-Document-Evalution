@@ -1,0 +1,1 @@
+web: streamlit run src/interfaces/professional_streamlit_app.py
